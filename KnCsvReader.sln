@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnCsvReader", "KnCsvReader\KnCsvReader.csproj", "{C942F4B0-B673-4F95-BD91-28FED23D22AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnCsvReader.Console", "KnCsvReader.Console\KnCsvReader.Console.csproj", "{10585607-75E0-45E0-9E15-D4D791E9D3E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C942F4B0-B673-4F95-BD91-28FED23D22AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C942F4B0-B673-4F95-BD91-28FED23D22AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C942F4B0-B673-4F95-BD91-28FED23D22AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C942F4B0-B673-4F95-BD91-28FED23D22AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10585607-75E0-45E0-9E15-D4D791E9D3E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10585607-75E0-45E0-9E15-D4D791E9D3E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10585607-75E0-45E0-9E15-D4D791E9D3E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10585607-75E0-45E0-9E15-D4D791E9D3E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
