@@ -36,6 +36,11 @@ public class Csv
                     {
                         result[key] = bv;
                     }
+                    // else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    // {
+                    //     value = value.Substring(2);
+                    //     result[key] = Enumerable.Range(0, value.Length / 2).Select(i => Convert.ToByte(value.Substring(i * 2, 2), 16)).ToArray();
+                    // }
                     else
                     {
                         result[key] = value;
@@ -83,6 +88,14 @@ public class Csv
                                 property.SetValue(result, dv);
                             }
                         }
+                        // else if (property.PropertyType == typeof(byte[]))
+                        // {
+                        //     if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                        //     {
+                        //         value = value.Substring(2);
+                        //         property.SetValue(result,Enumerable.Range(0, value.Length / 2).Select(i => Convert.ToByte(value.Substring(i * 2, 2), 16)).ToArray());
+                        //     }
+                        // }
                         else if (property.PropertyType == typeof(bool))
                         {
                             if (bool.TryParse(value, out bool bv))
