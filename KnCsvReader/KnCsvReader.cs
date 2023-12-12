@@ -17,9 +17,20 @@ public class Csv
                 for (int i = 0; i < headers.Length; i++)
                 {
                     string key = headers[i], value = data[i];
-                    if (long.TryParse(value, out long iv))
+                    if (long.TryParse(value, out long lv))
                     {
-                        result[key] = iv;
+                        if (int.TryParse(value, out int iv))
+                        {
+                            result[key] = iv;
+                        }
+                        else
+                        {
+                            result[key] = lv;
+                        }
+                    }
+                    else if (DateTime.TryParse(value, out DateTime dv))
+                    {
+                        result[key] = dv;
                     }
                     else if (bool.TryParse(value, out bool bv))
                     {
@@ -63,6 +74,13 @@ public class Csv
                             if (long.TryParse(value, out long lv))
                             {
                                 property.SetValue(result, lv);
+                            }
+                        }
+                        else if (property.PropertyType == typeof(DateTime))
+                        {
+                            if (DateTime.TryParse(value, out DateTime dv))
+                            {
+                                property.SetValue(result, dv);
                             }
                         }
                         else if (property.PropertyType == typeof(bool))
