@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 
 namespace KnCsvReader;
 
@@ -36,11 +37,11 @@ public class Csv
                     {
                         result[key] = bv;
                     }
-                    // else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-                    // {
-                    //     value = value.Substring(2);
-                    //     result[key] = Enumerable.Range(0, value.Length / 2).Select(i => Convert.ToByte(value.Substring(i * 2, 2), 16)).ToArray();
-                    // }
+                    else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = value.Substring(2);
+                        result[key] = GetBytesFromHexString(value);
+                    }
                     else
                     {
                         result[key] = value;
@@ -88,14 +89,14 @@ public class Csv
                                 property.SetValue(result, dv);
                             }
                         }
-                        // else if (property.PropertyType == typeof(byte[]))
-                        // {
-                        //     if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-                        //     {
-                        //         value = value.Substring(2);
-                        //         property.SetValue(result,Enumerable.Range(0, value.Length / 2).Select(i => Convert.ToByte(value.Substring(i * 2, 2), 16)).ToArray());
-                        //     }
-                        // }
+                        else if (property.PropertyType == typeof(byte[]))
+                        {
+                            if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                            {
+                                value = value.Substring(2);
+                                property.SetValue(result, GetBytesFromHexString(value));
+                            }
+                        }
                         else if (property.PropertyType == typeof(bool))
                         {
                             if (bool.TryParse(value, out bool bv))
@@ -126,7 +127,21 @@ public class Csv
             writer.WriteLine(headersString);
             foreach (var item in values)
             {
-                writer.WriteLine(string.Join(delimiter, item.Values));
+                StringBuilder line = new StringBuilder();
+                foreach (var value in item.Values)
+                {
+                    Type type = value.GetType();
+                    if (type == typeof(byte[]))
+                    {
+                        line.Append($"{GetHexBytesString(value as byte[])}{delimiter}");
+                    }
+                    else
+                    {
+                        line.Append($"{value}{delimiter}");
+                    }
+                }
+                line.Remove(line.Length - 1, 1);
+                writer.WriteLine(line);
                 result++;
             }
         }
@@ -145,7 +160,21 @@ public class Csv
             await writer.WriteLineAsync(headersString);
             foreach (var item in values)
             {
-                await writer.WriteLineAsync(string.Join(delimiter, item.Values));
+                StringBuilder line = new StringBuilder();
+                foreach (var value in item.Values)
+                {
+                    Type type = value.GetType();
+                    if (type == typeof(byte[]))
+                    {
+                        line.Append($"{GetHexBytesString(value as byte[])}{delimiter}");
+                    }
+                    else
+                    {
+                        line.Append($"{value}{delimiter}");
+                    }
+                }
+                line.Remove(line.Length - 1, 1);
+                await writer.WriteLineAsync(line);
                 result++;
             }
         }
@@ -158,21 +187,34 @@ public class Csv
         {
             return 0;
         }
-
         using (StreamWriter writer = new StreamWriter(filePath))
         {
-            var headers = typeof(T).GetProperties().Select(p => p.Name);
-            string headersString = string.Join(delimiter, headers);
+            var properties = typeof(T).GetProperties();
+            string headersString = string.Join(delimiter, properties.Select(p => p.Name));
             writer.WriteLine(headersString);
 
             foreach (var item in values)
             {
-                var propertyValues = typeof(T).GetProperties().Select(p => p.GetValue(item)?.ToString() ?? string.Empty);
-                writer.WriteLine(string.Join(delimiter, propertyValues));
+                StringBuilder line = new StringBuilder();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(item);
+                    Type type = value?.GetType() ?? typeof(object);
+
+                    if (type == typeof(byte[]))
+                    {
+                        line.Append($"{GetHexBytesString(value as byte[])}{delimiter}");
+                    }
+                    else
+                    {
+                        line.Append($"{value.ToString()}{delimiter}");
+                    }
+                }
+                line.Remove(line.Length - 1, 1);
+                writer.WriteLine(line);
                 result++;
             }
         }
-
         return result;
     }
     public static async Task<int> WriteFileAsync<T>(string filePath, IEnumerable<T> values, string delimiter = ",")
@@ -182,21 +224,43 @@ public class Csv
         {
             return 0;
         }
-
         using (StreamWriter writer = new StreamWriter(filePath))
         {
-            var headers = typeof(T).GetProperties().Select(p => p.Name);
-            string headersString = string.Join(delimiter, headers);
+            var properties = typeof(T).GetProperties();
+            string headersString = string.Join(delimiter, properties.Select(p => p.Name));
             await writer.WriteLineAsync(headersString);
-
             foreach (var item in values)
             {
-                var propertyValues = typeof(T).GetProperties().Select(p => p.GetValue(item)?.ToString() ?? string.Empty);
-                await writer.WriteLineAsync(string.Join(delimiter, propertyValues));
+                StringBuilder line = new StringBuilder();
+                foreach (var property in properties)
+                {
+                    var value = property.GetValue(item);
+                    Type type = value?.GetType() ?? typeof(object);
+
+                    if (type == typeof(byte[]))
+                    {
+                        line.Append($"{GetHexBytesString(value as byte[])}{delimiter}");
+                    }
+                    else
+                    {
+                        line.Append($"{value}{delimiter}");
+                    }
+                }
+                line.Remove(line.Length - 1, 1);
+                await writer.WriteLineAsync(line);
                 result++;
             }
         }
-
         return result;
     }
+    private static string GetHexBytesString(byte[] bytes)
+    {
+        StringBuilder result = new StringBuilder("0x");
+        foreach (byte b in bytes)
+        {
+            result.Append(b.ToString("X2"));
+        }
+        return result.ToString();
+    }
+    private static byte[] GetBytesFromHexString(string s) => Enumerable.Range(0, s.Length / 2).Select(i => Convert.ToByte(s.Substring(i * 2, 2), 16)).ToArray();
 }
